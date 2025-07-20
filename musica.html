@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTIMATE DJ EXPERIENCE - Simulador Profesional</title>
+ <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff00f0;
+            --neon-purple: #a600ff;
+            --neon-yellow: #fff200;
+            --deep-blue: #0a0a2a;
+            --electric-purple: #6a00ff;
+            --hot-magenta: #ff00aa;
+            --vibrant-blue: #0066ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, var(--deep-blue), var(--electric-purple));
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Orbitron:wght@700&display=swap');
+        
+        /* ESTRUCTURA PRINCIPAL */
+        .dj-ultimate {
+            width: 95%;
+            max-width: 1400px;
+            height: 95vh;
+            background: linear-gradient(145deg, #1a1a3a, #2a0a4a);
+            border-radius: 30px;
+            box-shadow: 
+                0 0 30px var(--neon-cyan),
+                0 0 60px var(--neon-pink),
+                0 0 90px var(--neon-purple);
+            border: 2px solid var(--neon-purple);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+        
+        /* PANEL IZQUIERDO - DECKS */
+        .decks-container {
+            display: grid;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .deck {
+            background: linear-gradient(145deg, #2a1a4a, #1a0a3a);
+            border-radius: 20px;
+            border: 1px solid var(--neon-pink);
+            box-shadow: 
+                inset 0 0 20px rgba(0, 255, 255, 0.2),
+                0 0 30px rgba(255, 0, 255, 0.2);
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .deck:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                inset 0 0 30px var(--neon-cyan),
+                0 0 40px var(--neon-pink);
+        }
+        
+        /* PANEL DERECHO - MEZCLADOR */
+        .mixer {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+        }
+        
+        /* VISUALIZADOR 3D */
+        .visualizer-3d {
+            background: linear-gradient(145deg, #0a0a2a, #1a0a4a);
+            border-radius: 20px;
+            border: 1px solid var(--neon-cyan);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 
+                inset 0 0 20px var(--neon-purple),
+                0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        
+        .spectrum-analyzer {
+            width: 90%;
+            height: 80%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        /* BARRAS DEL ECUALIZADOR */
+        .frequency-bar {
+            flex: 1;
+            margin: 0 2px;
+            background: linear-gradient(to top, var(--neon-cyan), var(--neon-purple));
+            border-radius: 5px 5px 0 0;
+            transform-origin: bottom;
+            transition: transform 0.05s;
+            box-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-pink);
+            min-width: 4px;
+            max-width: 10px;
+        }
+        
+        /* CONTROLES DJ PROFESIONALES */
+        .dj-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .control-group {
+            background: linear-gradient(145deg, #2a1a5a, #1a0a4a);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid var(--neon-yellow);
+            box-shadow: 
+                inset 0 0 15px rgba(0, 255, 255, 0.2),
+                0 0 25px rgba(255, 0, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .control-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                inset 0 0 25px var(--neon-cyan),
+                0 0 35px var(--neon-pink);
+        }
+        
+        /* KNOBS ESTILO PROFESIONAL */
+        .knob-professional {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 30% 30%, #3a3a5a, #0a0a2a),
+                radial-gradient(circle at center, var(--neon-cyan), transparent 70%);
+            border: 2px solid var(--neon-pink);
+            box-shadow: 
+                0 0 25px var(--neon-cyan),
+                inset 0 0 20px var(--neon-purple);
+            position: relative;
+            margin: 10px auto;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .knob-professional:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 35px var(--neon-cyan),
+                inset 0 0 30px var(--neon-pink);
+        }
+        
+        .knob-professional::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--neon-yellow);
+            border-radius: 50%;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px var(--neon-yellow);
+        }
+        
+        /* CROSSFADER */
+        .crossfader-container {
+            grid-column: 1 / -1;
+            padding: 15px;
+            background: linear-gradient(145deg, #2a1a5a, #1a0a4a);
+            border-radius: 15px;
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 
+                inset 0 0 20px var(--neon-purple),
+                0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        
+        .crossfader {
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, 
+                var(--neon-cyan), 
+                var(--neon-pink), 
+                var(--neon-purple));
+            border-radius: 10px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .crossfader-handle {
+            width: 30px;
+            height: 30px;
+            background: var(--neon-yellow);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+                0 0 15px var(--neon-yellow),
+                0 0 25px var(--neon-pink);
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+        
+        .crossfader-handle:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 
+                0 0 25px var(--neon-yellow),
+                0 0 35px var(--neon-pink);
+        }
+        
+        /* BOTONES */
+        .dj-button {
+            background: linear-gradient(to bottom, var(--electric-purple), var(--hot-magenta));
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                0 0 15px var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        .dj-button:hover {
+            background: linear-gradient(to bottom, var(--hot-magenta), var(--electric-purple));
+            transform: translateY(-5px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                0 0 25px var(--neon-cyan);
+            text-shadow: 0 0 15px white;
+        }
+        
+        /* EFECTOS ESPECIALES */
+        .neon-text {
+            color: white;
+            text-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-pink);
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(2px);
+        }
+        
+        /* ANIMACIONES */
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 15px var(--neon-cyan); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px var(--neon-pink); }
+            100% { transform: scale(1); box-shadow: 0 0 15px var(--neon-cyan); }
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 15px var(--neon-cyan); }
+            50% { box-shadow: 0 0 30px var(--neon-pink); }
+            100% { box-shadow: 0 0 15px var(--neon-cyan); }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .dj-ultimate {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+ button {
+  background-color: #4CAF50; /* Verde vibrante */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 0; /* Para hacerlo completamente cuadrado */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Sombra para efecto 3D */
+  transition: all 0.3s ease; /* Transición suave al interactuar */
+}
+
+button:hover {
+  background-color: #45a049; /* Verde un poco más oscuro al pasar el mouse */
+  box-shadow: 0 6px 12px 0 rgba(0,0,0,0.3); /* Sombra más pronunciada */
+  transform: translateY(-2px); /* Efecto de levantar */
+}
+
+button:active {
+  background-color: #3e8e41; /* Verde más oscuro al hacer clic */
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+  transform: translateY(0);
+}
+    </style>
+</head>
+
+
+<body>
+  
+    <div class="dj-ultimate">
+        <!-- PANEL IZQUIERDO - DECKS -->
+        <div class="decks-container">
+            <h1 class="neonColors" style="text-align: center; font-size: 2.5rem; background-color: aqua; color: black;">DJ Pablo tour</h1>
+            
+            <!-- DECK 1 -->
+            <div class="deck">
+                <h3 style="text-align: center; margin-bottom: 15px;">DECK A</h3>
+                <div class="waveform" id="waveformA"></div>
+                <div class="deck-controls" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <div>
+                        <div class="knob-professional" id="pitchA"></div>
+                        <div style="text-align: center; margin-top: 5px;">PITCH</div>
+                    </div>
+                    <div>
+                        <div class="knob-professional" id="eqA"></div>
+                        <div style="text-align: center; margin-top: 5px;">EQ</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DECK 2 -->
+            <div class="deck">
+                <h3 style="text-align: center; margin-bottom: 15px;">DECK B</h3>
+                <div class="waveform" id="waveformB"></div>
+                <div class="deck-controls" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <div>
+                        <div class="knob-professional" id="pitchB"></div>
+                        <div style="text-align: center; margin-top: 5px;">PITCH</div>
+                    </div>
+                    <div>
+                        <div class="knob-professional" id="eqB"></div>
+                        <div style="text-align: center; margin-top: 5px;">EQ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PANEL DERECHO - MEZCLADOR -->
+        <div class="mixer">
+            <!-- VISUALIZADOR 3D -->
+            <div class="visualizer-3d">
+                <div class="spectrum-analyzer" id="spectrumAnalyzer">
+                    <!-- Barras generadas por JS -->
+                </div>
+            </div>
+            
+            <!-- CONTROLES DJ -->
+            <div class="dj-controls">
+                <div class="control-group">
+                    <h4 style="text-align: center; margin-bottom: 10px;">FILTROS</h4>
+                    <div class="knob-professional" id="filterKnob"></div>
+                </div>
+                
+                <div class="control-group">
+                    <h4 style="text-align: center; margin-bottom: 10px;">EFECTOS</h4>
+                    <div class="knob-professional" id="fxKnob"></div>
+                </div>
+                
+                <div class="control-group">
+                    <h4 style="text-align: center; margin-bottom: 10px;">GAIN</h4>
+                    <div class="knob-professional" id="gainKnob"></div>
+                </div>
+                
+                <div class="crossfader-container">
+                    <h4 style="text-align: center; margin-bottom: 10px;">CROSSFADER</h4>
+                    <div class="crossfader">
+                        <div class="crossfader-handle" id="crossfaderHandle"></div>
+                    </div>
+                </div>
+            </div>
+          <!-- Agrega esto en tu HTML (puede estar en cualquier parte, preferiblemente oculto) -->
+<audio id="audioA" src="audio_a.mp3"></audio>
+<audio id="audioB" src="audio_b.mp3"></audio>
+
+
+<!-- BOTONES DE CONTROL -->
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+    <button class="dj-button" id="playA">PLAY A</button>
+    <button class="dj-button" id="masterPlay" style="background: linear-gradient(to right, var(--neon-cyan), var(--neon-pink)); color: black;">MASTER</button>
+    <button class="dj-button" id="playB">PLAY B</button>
+</div>
+       
+              <button onclick="window.location.href = 'index.html'">Volver a inicio</button> 
+        <!-- EFECTOS DE PARTÍCULAS -->
+        <div id="particles"></div>
+    </div>
+
+    <!-- SCRIPT AVANZADO -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Obtener elementos de audio
+    const audioA = document.getElementById('audioA');
+    const audioB = document.getElementById('audioB');
+    const masterAudio = document.getElementById('masterAudio');
+    
+    // Obtener botones
+    const playABtn = document.getElementById('playA');
+    const playBBtn = document.getElementById('playB');
+    const masterBtn = document.getElementById('masterPlay');
+    
+    // Control para el botón A
+    playABtn.addEventListener('click', function() {
+        if (audioA.paused) {
+            audioA.play();
+            playABtn.textContent = 'PAUSE A';
+        } else {
+            audioA.pause();
+            playABtn.textContent = 'PLAY A';
+        }
+    });
+    
+    // Control para el botón B
+    playBBtn.addEventListener('click', function() {
+        if (audioB.paused) {
+            audioB.play();
+            playBBtn.textContent = 'PAUSE B';
+        } else {
+            audioB.pause();
+            playBBtn.textContent = 'PLAY B';
+        }
+    });
+    
+    // Control para el botón MASTER
+    masterBtn.addEventListener('click', function() {
+        if (masterAudio.paused) {
+            masterAudio.play();
+            masterBtn.textContent = 'STOP';
+        } else {
+            masterAudio.pause();
+            masterAudio.currentTime = 0; // Rebobinar al inicio
+            masterBtn.textContent = 'MASTER';
+        }
+    });
+});
+        // ===== CONFIGURACIÓN INICIAL =====
+        const barCount = 64;
+        const spectrumAnalyzer = document.getElementById('spectrumAnalyzer');
+        const particlesContainer = document.getElementById('particles');
+        const masterPlayBtn = document.getElementById('masterPlay');
+        const playABtn = document.getElementById('playA');
+        const playBBtn = document.getElementById('playB');
+        
+        let isPlaying = false;
+        let animationId;
+        let currentBPM = 128;
+        
+        // ===== CREAR BARRAS DEL ANALIZADOR =====
+        for (let i = 0; i < barCount; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'frequency-bar';
+            spectrumAnalyzer.appendChild(bar);
+        }
+        const frequencyBars = document.querySelectorAll('.frequency-bar');
+        
+        // ===== SIMULACIÓN DE AUDIO PROFESIONAL =====
+        function simulateAdvancedAudio() {
+            const now = Date.now();
+            const timeFactor = now * 0.0015;
+            
+            // === ANIMACIÓN DE BARRAS DEL ESPECTRO ===
+            frequencyBars.forEach((bar, index) => {
+                const posFactor = index / frequencyBars.length;
+                
+                // Ondas complejas para efecto realista
+                const bassWave = Math.sin(timeFactor * 0.5 + posFactor * 5) * 0.7;
+                const midWave = Math.pow(Math.cos(timeFactor * 2 + posFactor * 15), 3) * 0.5;
+                const trebleWave = Math.random() * 0.3; // Ruido aleatorio
+                
+                const height = (bassWave + midWave + trebleWave + 1) * 50;
+                
+                // Color dinámico basado en frecuencia
+                const hue = (timeFactor * 30 + index * 2) % 360;
+                const saturation = 80 + Math.sin(timeFactor + index) * 20;
+                
+                bar.style.height = `${height}%`;
+                bar.style.background = `linear-gradient(to top, 
+                    hsl(${hue}, ${saturation}%, 50%), 
+                    hsl(${(hue + 120) % 360}, ${saturation}%, 50%)`;
+                bar.style.boxShadow = `0 0 10px hsl(${hue}, ${saturation}%, 50%)`;
+                
+                // Efecto 3D
+                const scaleY = 1 + height / 80;
+                const rotation = Math.sin(timeFactor * 0.8 + index * 0.1) * 5;
+                bar.style.transform = `scaleY(${scaleY}) rotateX(${rotation}deg)`;
+            });
+            
+            // === ANIMACIÓN DE KNOBS ===
+            const knobRotation = (multiplier) => {
+                return Math.sin(timeFactor * 0.3 * multiplier) * 180;
+            };
+            
+            document.getElementById('pitchA').style.transform = `rotate(${knobRotation(1)}deg)`;
+            document.getElementById('pitchB').style.transform = `rotate(${knobRotation(1.2)}deg)`;
+            document.getElementById('eqA').style.transform = `rotate(${knobRotation(0.8)}deg)`;
+            document.getElementById('eqB').style.transform = `rotate(${knobRotation(0.9)}deg)`;
+            document.getElementById('filterKnob').style.transform = `rotate(${knobRotation(1.5)}deg)`;
+            document.getElementById('fxKnob').style.transform = `rotate(${knobRotation(2)}deg)`;
+            document.getElementById('gainKnob').style.transform = `rotate(${knobRotation(0.5)}deg)`;
+            
+            // === EFECTOS DE PARTÍCULAS ===
+            if (Math.random() < 0.5) {
+                createParticle();
+            }
+            
+            animationId = requestAnimationFrame(simulateAdvancedAudio);
+        }
+        
+        // ===== FUNCIONES AUXILIARES =====
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            // Posición aleatoria
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const size = Math.random() * 20 + 5;
+            
+            // Color aleatorio con tonos neón
+            const hue = Math.random() * 360;
+            const neonColors = ['#0ff', '#f0f', '#ff0', '#90f'];
+            const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+            
+            particle.style.left = `${x}%`;
+            particle.style.top = `${y}%`;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.background = color;
+            particle.style.boxShadow = `0 0 ${size}px ${color}`;
+            particle.style.animation = `float ${Math.random() * 10 + 5}s linear infinite`;
+            
+            particlesContainer.appendChild(particle);
+            
+            // Eliminar después de animar
+            setTimeout(() => particle.remove(), 15000);
+        }
+        
+        // ===== EVENTOS =====
+        masterPlayBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                masterPlayBtn.textContent = 'STOP';
+                masterPlayBtn.style.background = 'linear-gradient(to right, #f00, #900)';
+                if (!animationId) {
+                    simulateAdvancedAudio();
+                }
+            } else {
+                masterPlayBtn.textContent = 'MASTER';
+                masterPlayBtn.style.background = 'linear-gradient(to right, var(--neon-cyan), var(--neon-pink))';
+            }
+        });
+        
+        // Iniciar con partículas
+        for (let i = 0; i < 30; i++) {
+            setTimeout(createParticle, i * 200);
+        }
+        
+        // Efecto de arrastre para crossfader
+        const crossfaderHandle = document.getElementById('crossfaderHandle');
+        let isDragging = false;
+        
+        crossfaderHandle.addEventListener('mousedown', () => {
+            isDragging = true;
+            document.addEventListener('mousemove', moveCrossfader);
+            document.addEventListener('mouseup', stopDrag);
+        });
+        
+        function moveCrossfader(e) {
+            if (!isDragging) return;
+            
+            const crossfader = document.querySelector('.crossfader');
+            const rect = crossfader.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            
+            // Limitar al área del crossfader
+            x = Math.max(0, Math.min(x, rect.width));
+            
+            const percentage = (x / rect.width) * 100;
+            crossfaderHandle.style.left = `${percentage}%`;
+        }
+        
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', moveCrossfader);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+    </script>
+</body>
+</html>

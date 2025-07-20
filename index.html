@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Pablo Tourn - Experiencia Musical</title>
+    <style>
+    /* Reset y estilos base mejorados */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Montserrat', 'Arial Black', sans-serif;
+        overflow: hidden;
+        background: linear-gradient(135deg, #100c2975, #302b63, #24243e);
+        position: relative;
+        color: white;
+        zoom: 65%;
+    }
+
+    /* Efecto de gradiente animado */
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            45deg,
+            rgba(195, 255, 0, 0.1) 0%,
+            rgba(0, 166, 255, 0.748) 50%,
+            rgba(255, 255, 0, 0.39) 100%
+        );
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        z-index: -4;
+    }
+
+    /* Efecto de luces estroboscópicas mejorado */
+    .light-effect {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at var(--x, 50%) var(--y, 50%),
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 70%,
+            transparent 100%
+        );
+        opacity: 0;
+        z-index: -2;
+        animation: strobeLight 8s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes strobeLight {
+        0%, 15% { opacity: 0.05; }
+        20% { opacity: 0.3; }
+        25%, 40% { opacity: 0.1; }
+        45% { opacity: 0.4; }
+        50%, 65% { opacity: 0.05; }
+        70% { opacity: 0.2; }
+        75%, 100% { opacity: 0.1; }
+    }
+
+    /* Efecto de escenario DJ mejorado */
+    .stage-lights {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -3;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .stage-light {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.8;
+        mix-blend-mode: screen;
+        animation: 
+            moveLight 20s linear infinite, 
+            changeColor 12s linear infinite,
+            pulseLight 4s ease-in-out infinite alternate;
+    }
+
+    .stage-light:nth-child(1) { animation-delay: 0s, 0s, 0s; }
+    .stage-light:nth-child(2) { animation-delay: -5s, -4s, -1s; }
+    .stage-light:nth-child(3) { animation-delay: -10s, -8s, -2s; }
+
+    @keyframes moveLight {
+        0% { transform: translate(10vw, 10vh) scale(0.8); }
+        25% { transform: translate(80vw, 30vh) scale(1.2); }
+        50% { transform: translate(40vw, 70vh) scale(0.9); }
+        75% { transform: translate(70vw, 20vh) scale(1.1); }
+        100% { transform: translate(10vw, 10vh) scale(0.8); }
+    }
+
+    @keyframes changeColor {
+        0% { background: #ff00ff; }
+        20% { background: #00ffff; }
+        40% { background: #ffff00; }
+        60% { background: #ff3366; }
+        80% { background: #33ffcc; }
+        100% { background: #ff00ff; }
+    }
+
+    @keyframes pulseLight {
+        from { opacity: 0.6; }
+        to { opacity: 0.9; }
+    }
+
+    /* Loader con efecto mejorado */
+    .loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color:skyblue;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: loaderFadeOut 0.8s ease-out 3s forwards;
+    }
+
+    @keyframes loaderFadeOut {
+        to { opacity: 0; visibility: hidden; }
+    }
+
+   
+    @keyframes loaderLogoFadeIn {
+        to { opacity: 1; }
+    }
+
+    @keyframes textGlow {
+        from { 
+            text-shadow: 
+                0 0 10px #fff, 
+                0 0 20px #ff00ff, 
+                0 0 30px #ff00ff; 
+        }
+        to { 
+            text-shadow: 
+                0 0 15px #fff, 
+                0 0 30px #00ffff, 
+                0 0 45px #00ffff; 
+        }
+    }
+.loader-logo {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    text-shadow: 
+        0 0 10px rgba(0, 0, 0, 0),
+        0 0 20px rgba(0, 0, 0, 0),
+        0 0 30px rgba(0, 0, 0, 0),
+        0 0 40px rgba(0, 0, 0, 0);
+    animation: 
+        loaderLogoFadeIn 1.2s ease-out 0.5s forwards,
+        textGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes loaderLogoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loader-logo {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    text-shadow: 
+        0 0 10px rgba(0, 0, 0, 0),
+        0 0 20px rgba(0, 0, 0, 0),
+        0 0 30px rgba(0, 0, 0, 0),
+        0 0 40px rgba(0, 0, 0, 0);
+    animation: 
+        loaderLogoFadeIn 1.2s ease-out 0.5s forwards,
+        textGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes loaderLogoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes textGlow {
+    from {
+        text-shadow: 
+            0 0 10px rgba(255, 255, 255, 0.2),
+            0 0 20px rgba(255, 255, 255, 0.2),
+            0 0 30px rgba(255, 255, 255, 0.2),
+            0 0 40px rgba(255, 255, 255, 0.2);
+    }
+    to {
+        text-shadow: 
+            0 0 10px rgba(255, 255, 255, 0.8),
+            0 0 20px rgba(255, 255, 255, 0.8),
+            0 0 30px rgba(255, 255, 255, 0.8),
+            0 0 40px rgba(255, 255, 255, 0.8);
+    }
+}
+
+
+    @keyframes spinReverse {
+        to { transform: rotate(-720deg); }
+    }
+
+    /* Cursor personalizado mejorado */
+    .custom-cursor {
+        position: fixed;
+        width: 24px;
+        height: 24px;
+        background: radial-gradient(circle, #fff 0%, #ff00ff 70%);
+        border-radius: 50%;
+        mix-blend-mode: difference;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%) scale(1);
+        transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease;
+        box-shadow: 
+            0 0 15px #fff, 
+            0 0 30px #ff00ff;
+        animation: cursorPulse 2s ease-in-out infinite alternate;
+        display: block !important;
+    }
+
+    @keyframes cursorPulse {
+        from { 
+            transform: translate(-50%, -50%) scale(1); 
+            box-shadow: 
+                0 0 15px #fff, 
+                0 0 30px #ff00ff; 
+        }
+        to { 
+            transform: translate(-50%, -50%) scale(1.3); 
+            box-shadow: 
+                0 0 25px #fff, 
+                0 0 50px #00ffff; 
+        }
+    }
+
+    .custom-cursor-follower {
+        position: fixed;
+        width: 60px;
+        height: 60px;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        mix-blend-mode: difference;
+        pointer-events: none;
+        z-index: 9997;
+        transform: translate(-50%, -50%);
+        transition: 
+            transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+            width 0.3s ease, 
+            height 0.3s ease,
+            border-color 0.3s ease;
+        box-shadow: 
+            0 0 20px #00ffff,
+            inset 0 0 15px rgba(255, 255, 255, 0.3);
+        animation: followerPulse 3s ease-in-out infinite alternate;
+        display: block !important;
+    }
+
+    @keyframes followerPulse {
+        from { 
+            transform: translate(-50%, -50%) scale(1); 
+            box-shadow: 
+                0 0 20px #00ffff,
+                inset 0 0 15px rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        to { 
+            transform: translate(-50%, -50%) scale(1.2); 
+            box-shadow: 
+                0 0 40px #ff00ff,
+                inset 0 0 25px rgba(255, 255, 255, 0.5);
+            border-color: #ff00ff;
+        }
+    }
+
+    /* Contenedor principal mejorado */
+    .container {
+        position: relative;
+        text-align: center;
+        padding: 3rem;
+        width: 90%;
+        max-width: 900px;
+        opacity: 0;
+        animation: contentFadeIn 1.2s ease-out 3.2s forwards;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 25px;
+        box-shadow: 
+            0 0 30px rgba(255, 255, 255, 0.1),
+            inset 0 0 20px rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transform: translateY(20px);
+        overflow: hidden;
+    }
+
+    .container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to bottom right,
+            transparent, transparent, transparent,
+            rgba(255, 255, 255, 0.05),
+            transparent, transparent, transparent
+        );
+        transform: rotate(30deg);
+        animation: shine 8s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes shine {
+        from { transform: translateY(-50%) rotate(30deg); }
+        to { transform: translateY(50%) rotate(30deg); }
+    }
+
+    @keyframes contentFadeIn {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo con efecto mejorado */
+    .logo-wrapper {
+        position: relative;
+        margin-bottom: 5rem;
+        animation: 
+            logoEntrance 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+            floatLogo 6s ease-in-out 1.8s infinite;
+        opacity: 0;
+        transform: scale(0.5);
+        perspective: 1000px;
+    }
+
+    @keyframes logoEntrance {
+        0% { opacity: 0; transform: scale(0.5) rotateX(60deg); }
+        80% { transform: scale(1.1) rotateX(-10deg); }
+        100% { opacity: 1; transform: scale(1) rotateX(0deg); }
+    }
+
+    @keyframes floatLogo {
+        0%, 100% { transform: translateY(0) rotateX(0deg); }
+        50% { transform: translateY(-30px) rotateX(10deg); }
+    }
+
+    .logo {
+        font-size: 6rem;
+        font-weight: 900;
+        color: white;
+        position: relative;
+        z-index: 2;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        text-shadow: 
+            0 0 10px #fff,
+            0 0 20px #fff,
+            0 0 30px #ff00ff,
+            0 0 40px #ff00ff,
+            0 0 70px #ff00ff,
+            0 0 80px #ff00ff;
+        animation: neonGlow 2s ease-in-out infinite alternate;
+        transform-style: preserve-3d;
+    }
+
+    @keyframes neonGlow {
+        from {
+            text-shadow: 
+                0 0 10px #fff,
+                0 0 20px #fff,
+                0 0 30px #ff00ff,
+                0 0 40px #ff00ff;
+        }
+        to {
+            text-shadow: 
+                0 0 15px #fff,
+                0 0 25px #00ffff,
+                0 0 35px #00ffff,
+                0 0 45px #00ffff,
+                0 0 55px #00ffff,
+                0 0 65px #00ffff;
+        }
+    }
+
+    .logo-reflect {
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        width: 100%;
+        font-size: 6rem;
+        font-weight: 900;
+        color: white;
+        opacity: 0.3;
+        transform: scaleY(-1) skewX(-20deg);
+        mask-image: linear-gradient(to bottom, transparent 10%, white 70%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 10%, white 70%);
+        z-index: 1;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        filter: blur(3px);
+        animation: reflectGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes reflectGlow {
+        from {
+            opacity: 0.2;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #ff00ff;
+        }
+        to {
+            opacity: 0.4;
+            text-shadow: 
+                0 0 10px #fff,
+                0 0 20px #00ffff;
+        }
+    }
+
+    .subtitle {
+        font-size: 2.2rem;
+        color: white;
+        margin-top: 1.5rem;
+        opacity: 0;
+        text-shadow: 
+            0 0 10px #fff, 
+            0 0 20px #ff00ff;
+        animation: 
+            fadeIn 1.2s ease-out 1.5s forwards,
+            subtitleGlow 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    @keyframes subtitleGlow {
+        from { 
+            text-shadow: 
+                0 0 10px #fff, 
+                0 0 20px #ff00ff; 
+        }
+        to { 
+            text-shadow: 
+                0 0 15px #fff, 
+                0 0 30px #00ffff,
+                0 0 45px #00ffff; 
+        }
+    }
+
+    /* Botones mejorados */
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 2.5rem;
+        margin-top: 4rem;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 1s ease-out 1.8s forwards;
+    }
+
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn {
+        position: relative;
+        padding: 1.5rem 3rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 
+            0 5px 15px rgba(0, 0, 0, 0.3),
+            inset 0 0 10px rgba(255, 255, 255, 0.2);
+        opacity: 0;
+        transform: translateY(30px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-shadow: 0 0 5px #fff;
+        animation: btnEntrance 0.8s ease-out var(--delay) forwards;
+    }
+
+    .btn:nth-child(1) { --delay: 2.0s; --color1: #ff00ff; --color2: #00ffff; }
+    .btn:nth-child(2) { --delay: 2.2s; --color1: #ffff00; --color2: #ff3366; }
+
+    @keyframes btnEntrance {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to bottom right,
+            transparent, transparent, transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent, transparent, transparent
+        );
+        transform: rotate(30deg);
+        transition: all 0.8s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 
+            0 10px 25px var(--color1),
+            inset 0 0 20px rgba(255, 255, 255, 0.4);
+       background-color: #33ffcc;
+        border: 1px solid var(--color1);
+        text-shadow: 
+            0 0 10px #fff, 
+            0 0 20px var(--color1);
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn.active {
+        background: rgba(0, 0, 0, 0.7);
+        box-shadow: 
+            0 0 30px var(--color2),
+            inset 0 0 20px rgba(255, 255, 255, 0.4);
+        border: 1px solid var(--color2);
+        text-shadow: 
+            0 0 10px #fff, 
+            0 0 20px var(--color2);
+    }
+
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 50px;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.1) 100%
+        );
+        pointer-events: none;
+    }
+
+    /* Contenido mejorado */
+    .content {
+        display: none;
+        margin-top: 4rem;
+        padding: 3rem;
+   
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.6),
+            inset 0 0 20px rgba(255, 255, 255, 0.1);
+        animation: fadeInUp 1s ease-out;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    .content.active {
+        display: block;
+        animation: fadeInUpContent 1s ease-out forwards;
+    }
+
+    @keyframes fadeInUpContent {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content h2 {
+        color: white;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        text-shadow: 
+            0 0 10px #ffffff, 
+            0 0 20px #ff00ff;
+        animation: textGlow 2s ease-in-out infinite alternate;
+    }
+
+    .content p {
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.8;
+        font-size: 1.2rem;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        margin-bottom: 2rem;
+    }
+
+    /* Social links mejorados */
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1.2rem 2.5rem;
+        margin-top: 0;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50px;
+        color: white;
+        text-decoration: none;
+        font-size: 1.3rem;
+        font-weight: bold;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 
+            0 5px 15px rgba(0, 0, 0, 0.3),
+            inset 0 0 10px rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-shadow: 0 0 5px #fff;
+        min-width: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .social-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+        );
+        transition: all 0.6s ease;
+    }
+
+    .social-link:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 10px 25px rgba(255, 0, 255, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+        text-shadow: 
+            0 0 10px #fff, 
+            0 0 20px #ff00ff;
+    }
+
+    .social-link:hover::before {
+        left: 100%;
+    }
+
+    .social-link.facebook {
+        background: rgba(59, 89, 152, 0.7);
+    }
+
+    .social-link.facebook:hover {
+        box-shadow: 
+            0 10px 25px rgba(59, 89, 152, 0.8),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .social-link.twitter {
+        background: rgba(29, 161, 242, 0.7);
+    }
+
+    .social-link.twitter:hover {
+        box-shadow: 
+            0 10px 25px rgba(29, 161, 242, 0.8),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .social-link.instagram {
+        background: linear-gradient(
+            45deg,
+            rgba(225, 48, 108, 0.7),
+            rgba(253, 228, 0, 0.7)
+        );
+    }
+
+    .social-link.instagram:hover {
+        box-shadow: 
+            0 10px 25px rgba(225, 48, 108, 0.8),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .social-link i {
+        font-size: 2rem;
+    }
+
+    /* Efectos de partículas mejorados */
+    .particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .particle {
+        position: absolute;
+        border-radius: 50%;
+        animation: float linear infinite;
+        filter: blur(1px);
+        box-shadow: 0 0 10px currentColor;
+        background: currentColor;
+    }
+
+    @keyframes float {
+        to {
+            transform: translateY(-100vh);
+        }
+    }
+
+    /* Notas musicales mejoradas */
+    .music-note {
+        position: absolute;
+        font-size: 2rem;
+        animation: floatNote linear infinite;
+        opacity: 0;
+        z-index: -1;
+        text-shadow: 0 0 10px currentColor;
+        pointer-events: none;
+    }
+
+    @keyframes floatNote {
+        0% { 
+            transform: translateY(100vh) rotate(0deg) scale(0.5); 
+            opacity: 0; 
+            color: #ff00ff; 
+        }
+        10% { opacity: 0.8; }
+        30% { color: #00ffff; transform: scale(1); }
+        60% { color: #ffff00; }
+        90% { opacity: 0.8; }
+        100% { 
+            transform: translateY(-20vh) rotate(360deg) scale(0.5); 
+            opacity: 0; 
+            color: #ff00ff; 
+        }
+    }
+
+    /* Efecto de confeti */
+    .confetti {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: currentColor;
+        animation: confettiFall linear infinite;
+        opacity: 0;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    @keyframes confettiFall {
+        0% { 
+            transform: translateY(-100vh) rotate(0deg); 
+            opacity: 1; 
+        }
+        100% { 
+            transform: translateY(100vh) rotate(720deg); 
+            opacity: 1; 
+        }
+    }
+
+    /* Responsive mejorado */
+    @media (max-width: 992px) {
+        .logo, .logo-reflect {
+            font-size: 4.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.8rem;
+        }
+        
+        .btn {
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .social-link {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            min-width: 160px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .loader-logo {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+        }
+        
+        .logo, .logo-reflect {
+            font-size: 3.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+        }
+        
+        .buttons {
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 1.5rem;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .content h2 {
+            font-size: 2rem;
+        }
+        
+        .content p {
+            font-size: 1.1rem;
+            
+        }
+        
+        .social-links {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .social-link {
+            width: 100%;
+        }
+        
+        .custom-cursor, .custom-cursor-follower {
+            display: none;
+        }
+        
+        * {
+            cursor: default !important;
+        }
+        
+        .light-effect {
+            animation: none;
+            opacity: 0.1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 2rem 1.5rem;
+            width: 95%;
+        }
+        
+        .logo, .logo-reflect {
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .btn {
+            font-size: 1rem;
+            padding: 1.2rem;
+        }
+        
+        .content {
+            padding: 1.5rem;
+        }
+        
+        .content h2 {
+            font-size: 1.8rem;
+            
+        }
+    }
+
+
+.loader-logo {
+    color: transparent; /* Texto invisible */
+    -webkit-text-stroke: 1px #000; /* Borde negro (opcional) */
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.5), /* Brillo blanco alrededor */
+        0 0 20px rgba(255, 255, 255, 0.459);
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #4CAF50; /* Color de fondo verde */
+    color: white; /* Color del texto */
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px; /* Bordes redondeados */
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transición suave para efectos hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+.btn:hover {
+    background-color: #45a049; /* Color más oscuro al pasar el mouse */
+    transform: translateY(-2px); /* Efecto de levantar */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+}
+
+.btn:active {
+    transform: translateY(0); /* Efecto de presionar */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+ .buttons {
+        display: flex;
+        gap: 10px;
+        padding: 15px;
+        background-color: #f5f5f5; /* Fondo gris claro para el contenedor */
+        border-radius: 8px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        color: white !important; /* Texto blanco */
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    /* Botón normal (azul) */
+    .btn:not(.active):not(.musical-btn) {
+        background-color: #4a76a8;
+    }
+    
+    /* Botón activo (rojo) */
+    .btn.active {
+        background-color: #e74c3c;
+    }
+    
+    /* Botón Musicales (negro) */
+    .btn.musical-btn {
+        background-color: #000000; /* Fondo negro */
+    }
+    
+    /* Efectos hover */
+    .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    
+
+</style>
+</head>
+<body>
+    <!-- Efectos de iluminación -->
+    <div class="light-effect"></div>
+    <div class="stage-lights" id="stage-lights"></div>
+    
+    <!-- Loader -->
+    <div class="loader">
+        <div class="loader-logo">pablo tourn dj</div><img src="fotopablo.jpg" alt="Pablo Image" width="600">
+
+        <div class="loader-circle"></div>
+    </div>
+
+    <!-- Cursor personalizado -->
+    <div class="custom-cursor"></div>
+    <div class="custom-cursor-follower"></div>
+
+    <!-- Contenido principal -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Reproductor de música oculto -->
+    <div id="music-player" style="display: none;">
+        <iframe 
+            id="youtube-iframe"
+            src="https://www.youtube.com/embed/vHwe0x3WRMA?autoplay=1&mute=0&enablejsapi=1&loop=1&playlist=vHwe0x3WRMA" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
+    
+    <div class="container">
+        <div class="logo-wrapper">
+            <div class="logo">
+
+                <h1 class="neonColors" style="text-align: center; font-size: 2.5rem; background-color: aqua; color: black;">DJ Pablo tour</h1>
+            
+            </div>
+            <div class="logo-reflect">
+
+               
+            </div>
+        </div>
+      
+     <div class="buttons">
+  <a href="index.html" class="btn active" onclick="showSection('inicio'); return false;">Inicio</a>
+    <a href="index.html" class="btn" onclick="showSection('contacto'); return false;">Contacto</a>
+   <a href="musica.html" class="big-btn"><h2>Ritmo musical DJ Pablo Tour </h2> </a>
+      <a href="karaoke.html" class="big-btn"><h3>
+
+      hace tu karaoke y descarga tu video</h3> </a>
+</div>
+        <div id="inicio" class="content active">
+            
+       <h2>
+
+      
+    La música es refugio, fuego y libertad. En cada beat viajamos lejos, en cada melodía encontramos pedazos de nosotros mismos. No importa el idioma ni el lugar: si el ritmo vibra, el alma despierta. La música no solo se escucha, se siente, se vive.
+ </h2>
+        </div>
+        
+        <div id="contacto" class="content">
+            <h2>Contacto</h2>
+            <p>Conéctate conmigo en mis redes sociales:</p>
+            
+            <div class="social-links">
+                <a href="https://www.facebook.com/pablo.tourn.9/" target="_blank" class="social-link facebook">
+                    <i class="fab fa-facebook-f"></i>
+                    Facebook
+                </a>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Script para control de música -->
+    <script>
+        // Variables para control de música
+        let isMusicPlaying = true;
+        let player;
+        
+        // Esta función se llama cuando la API de YouTube está lista
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-iframe', {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+        
+        // Cuando el reproductor está listo
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+        
+        // Para manejar cambios de estado del reproductor
+        function onPlayerStateChange(event) {
+            // Puedes agregar lógica adicional aquí si lo necesitas
+        }
+        
+        // Función para mostrar secciones
+        function showSection(sectionId) {
+            // Oculta todos los contenidos
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Muestra el contenido seleccionado
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Actualiza botones activos
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        // Cargar la API de YouTube
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        
+        // Movimiento automático del mouse
+        function moveMouseAutomatically() {
+            const cursor = document.querySelector('.custom-cursor');
+            const follower = document.querySelector('.custom-cursor-follower');
+            
+            let x = 0;
+            let y = 0;
+            let angle = 0;
+            const radius = 200;
+            const speed = 0.02;
+            
+            function animate() {
+                x = window.innerWidth / 2 + Math.cos(angle) * radius;
+                y = window.innerHeight / 2 + Math.sin(angle) * radius;
+                
+                cursor.style.left = `${x}px`;
+                cursor.style.top = `${y}px`;
+                follower.style.left = `${x}px`;
+                follower.style.top = `${y}px`;
+                
+                angle += speed;
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        // Mostrar el cursor personalizado y moverlo
+        function setupCustomCursor() {
+            const cursor = document.querySelector('.custom-cursor');
+            const follower = document.querySelector('.custom-cursor-follower');
+            
+            // Hacer visible el cursor
+            cursor.style.display = 'block';
+            follower.style.display = 'block';
+            
+            // Iniciar movimiento automático
+            moveMouseAutomatically();
+        }
+        
+        // Iniciar todo después de que cargue la página
+        window.addEventListener('load', () => {
+            setTimeout(setupCustomCursor, 3500);
+        });
+    </script>
+</body>
+</html>

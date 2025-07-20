@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karaoke Pro - Artistas Españoles</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #4cc9f0;
+            --dark: #1a1a2e;
+            --text: #f8f9fa;
+            --lyric-size: 2rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--dark);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            position: relative;
+            transition: background 1s ease;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0,0,0,0.3);
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .visualizer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(30px);
+            opacity: 0.6;
+            animation: float 15s infinite linear;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 600px;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .track-controls {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            flex: 0 0 70px;
+            padding: 0;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+            font-weight: bold;
+        }
+
+        .record-btn.recording {
+            animation: pulse 1.5s infinite;
+        }
+
+        .track-info {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: -5px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--light), var(--accent));
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .theme-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .track-selector {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 70vh;
+            overflow-y: auto;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+            display: none;
+        }
+
+        .track-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .track-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .track-item.active {
+            background: var(--primary);
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 11;
+            font-size: 1.5rem;
+        }
+
+        .genre-title {
+            font-weight: bold;
+            margin: 15px 0 5px 0;
+            color: var(--light);
+            text-align: left;
+            font-size: 1.2rem;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+
+        .lyrics-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lyrics-line {
+            margin: 15px 0;
+            font-size: var(--lyric-size);
+            opacity: 0.5;
+            transition: all 0.3s ease;
+            line-height: 1.5;
+            max-width: 800px;
+        }
+
+        .lyrics-line.active {
+            opacity: 1;
+            font-size: calc(var(--lyric-size) * 1.2);
+            color: var(--accent);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(247, 37, 133, 0.5);
+        }
+
+        .video-container {
+            flex: 1;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            min-height: 250px;
+        }
+
+        video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .camera-controls {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .mic-controls {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mic-visualizer {
+            height: 60px;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mic-level {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--light), var(--accent));
+            transition: width 0.1s;
+        }
+
+        .effects-controls {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .recording-controls {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 1rem;
+        }
+
+        .recording-timer {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .lyrics-controls {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .lyrics-size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-section {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(50px, -50px); }
+            50% { transform: translate(0, -100px); }
+            75% { transform: translate(-50px, -50px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(247, 37, 133, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .right-panel {
+                width: 100%;
+                height: auto;
+            }
+            
+            .theme-selector {
+                top: 80px;
+                right: 10px;
+            }
+            
+            .track-selector {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+            }
+            
+            .controls {
+                width: calc(100% - 40px);
+            }
+            
+            :root {
+                --lyric-size: 1.5rem;
+            }
+            
+            .lyrics-line {
+                margin: 10px 0;
+            }
+        }
+        button {
+  background-color: #4CAF50; /* Verde vibrante */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 0; /* Para hacerlo completamente cuadrado */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Sombra para efecto 3D */
+  transition: all 0.3s ease; /* Transición suave al interactuar */
+}
+
+button:hover {
+  background-color: #45a049; /* Verde un poco más oscuro al pasar el mouse */
+  box-shadow: 0 6px 12px 0 rgba(0,0,0,0.3); /* Sombra más pronunciada */
+  transform: translateY(-2px); /* Efecto de levantar */
+}
+
+button:active {
+  background-color: #3e8e41; /* Verde más oscuro al hacer clic */
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+  transform: translateY(0);
+}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+   <h1 class="neonColors" style="text-align: center; font-size: 2.5rem; background-color: aqua; color: black;">
+  DJ Pablo tour
+  
+  <a href="https://www.facebook.com/pablo.tourn.9/" target="_blank" style="margin-left: 15px; color: #3b5998;">
+    <i class="fab fa-facebook" style="font-size: 40px; vertical-align: middle;"></i>
+  </a>
+  <button onclick="window.location.href = 'index.html'">Volver a inicio</button>
+
+</h1>
+</h1><h2>
+    Hace tu karaoke y descarga tu video.
+</h2>
+    <div class="visualizer" id="visualizer"></div>
+
+    <div class="menu-btn" id="menuBtn">≡</div>
+
+    <div class="track-selector" id="trackSelector">
+        <h3>Lista de Temas (Artistas Españoles)</h3>
+        <div id="trackList"></div>
+    </div>
+
+    <div class="theme-selector">
+        <div class="theme-btn" style="background: #4361ee;" data-theme="blue"></div>
+        <div class="theme-btn" style="background: #f72585;" data-theme="pink"></div>
+        <div class="theme-btn" style="background: #4cc9f0;" data-theme="cyan"></div>
+        <div class="theme-btn" style="background: #3a0ca3;" data-theme="purple"></div>
+        <div class="theme-btn" style="background: #ff9e00;" data-theme="orange"></div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="lyrics-container" id="lyricsContainer">
+                <div class="lyrics-line">Selecciona una canción para ver la letra</div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="video-container">
+                <video id="userVideo" autoplay muted playsinline></video>
+                <video id="recordedVideo" style="display: none;"></video>
+            </div>
+            
+            <div class="camera-controls">
+                <button id="toggleCamera"><i class="fas fa-video"></i> Activar Cámara</button>
+                <button id="toggleEffects"><i class="fas fa-magic"></i> Efectos</button>
+            </div>
+            
+            <div class="mic-controls">
+                <button id="toggleMic"><i class="fas fa-microphone"></i> Activar Micrófono</button>
+                <div class="mic-visualizer">
+                    <div class="mic-level" id="micLevel"></div>
+                </div>
+            </div>
+            
+            <div class="effects-controls" id="effectsControls" style="display: none;">
+                <select id="videoEffect">
+                    <option value="none">Sin efecto de video</option>
+                    <option value="blur">Desenfoque</option>
+                    <option value="grayscale">Escala de grises</option>
+                    <option value="sepia">Sepia</option>
+                    <option value="invert">Invertir colores</option>
+                </select>
+                <select id="audioEffect">
+                    <option value="none">Sin efecto de audio</option>
+                    <option value="echo">Eco</option>
+                    <option value="reverb">Reverb</option>
+                    <option value="pitch">Cambiar tono</option>
+                </select>
+            </div>
+            
+            <div class="lyrics-controls">
+                <div class="lyrics-size-control">
+                    <span>Tamaño letra:</span>
+                    <button id="decreaseLyricSize"><i class="fas fa-font"></i> -</button>
+                    <button id="increaseLyricSize"><i class="fas fa-font"></i> +</button>
+                </div>
+            </div>
+            
+            <div class="recording-controls">
+                <button id="recordBtn" class="record-btn"><i class="fas fa-circle"></i> Grabar Karaoke</button>
+                <div class="recording-timer" id="recordingTimer" style="display: none;">00:00</div>
+            </div>
+            
+            <div class="download-section" id="downloadSection" style="display: none;">
+                <h3>Grabación finalizada</h3>
+                <button id="downloadBtn" class="download-btn"><i class="fas fa-download"></i> Descargar Video</button>
+                <button id="newRecordingBtn"><i class="fas fa-redo"></i> Nueva Grabación</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="track-info" id="trackInfo">Selecciona un tema para comenzar</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="track-controls">
+            <button id="prevBtn"><i class="fas fa-step-backward"></i> Anterior</button>
+            <button class="play-btn" id="playBtn">▶</button>
+            <button id="nextBtn">Siguiente <i class="fas fa-step-forward"></i></button>
+        </div>
+    </div>
+
+    <audio id="bgMusic"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos del DOM
+            const music = document.getElementById('bgMusic');
+            const playBtn = document.getElementById('playBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const trackInfo = document.getElementById('trackInfo');
+            const visualizer = document.getElementById('visualizer');
+            const progressBar = document.getElementById('progressBar');
+            const trackSelector = document.getElementById('trackSelector');
+            const trackList = document.getElementById('trackList');
+            const menuBtn = document.getElementById('menuBtn');
+            const themeBtns = document.querySelectorAll('.theme-btn');
+            const lyricsContainer = document.getElementById('lyricsContainer');
+            const userVideo = document.getElementById('userVideo');
+            const recordedVideo = document.getElementById('recordedVideo');
+            const toggleCameraBtn = document.getElementById('toggleCamera');
+            const toggleMicBtn = document.getElementById('toggleMic');
+            const micLevel = document.getElementById('micLevel');
+            const toggleEffectsBtn = document.getElementById('toggleEffects');
+            const effectsControls = document.getElementById('effectsControls');
+            const videoEffect = document.getElementById('videoEffect');
+            const audioEffect = document.getElementById('audioEffect');
+            const recordBtn = document.getElementById('recordBtn');
+            const recordingTimer = document.getElementById('recordingTimer');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadSection = document.getElementById('downloadSection');
+            const newRecordingBtn = document.getElementById('newRecordingBtn');
+            const increaseLyricSizeBtn = document.getElementById('increaseLyricSize');
+            const decreaseLyricSizeBtn = document.getElementById('decreaseLyricSize');
+            
+            // Variables de estado
+            let currentTrack = 0;
+            let isPlaying = false;
+            let stream = null;
+            let audioContext = null;
+            let analyser = null;
+            let microphone = null;
+            let isCameraOn = false;
+            let isMicOn = false;
+            let mediaRecorder = null;
+            let recordedChunks = [];
+            let recordingStartTime = null;
+            let recordingInterval = null;
+            let lyricInterval = null;
+            
+            // Lista de canciones de artistas españoles famosos (100 canciones)
+            const playlist = [
+                {
+                    id: 1,
+                    title: "Vivir mi vida",
+                    artist: "Marc Anthony",
+                    genre: "Salsa",
+                    lyrics: [
+                        "Voy a reír, voy a bailar",
+                        "Vivir mi vida la la la la",
+                        "Voy a reír, voy a gozar",
+                        "Vivir mi vida la la la la",
+                        "Voy a vivir el momento",
+                        "Para entender el destino"
+                    ],
+                    color1: "#e74c3c",
+                    color2: "#f39c12",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                },
+                {
+                    id: 2,
+                    title: "Bailando",
+                    artist: "Enrique Iglesias",
+                    genre: "Pop",
+                    lyrics: [
+                        "Bailando, bailando",
+                        "Tu cuerpo y el mío llenando el vacío",
+                        "Subiendo, bajando",
+                        "Bailando, bailando",
+                        "Bailando, bailando",
+                        "Ese fuego por dentro me va enloqueciendo"
+                    ],
+                    color1: "#3498db",
+                    color2: "#9b59b6",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+                },
+                {
+                    id: 3,
+                    title: "La Tortura",
+                    artist: "Shakira",
+                    genre: "Pop",
+                    lyrics: [
+                        "Ay, amor me duele tanto",
+                        "Me duele tanto",
+                        "Porque te quiero tanto",
+                        "Y fue más fuerte que yo",
+                        "No pude hacer nada",
+                        "Me estoy muriendo por volver"
+                    ],
+                    color1: "#1abc9c",
+                    color2: "#2ecc71",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+                },
+                {
+                    id: 4,
+                    title: "Corazón partío",
+                    artist: "Alejandro Sanz",
+                    genre: "Pop",
+                    lyrics: [
+                        "Corazón partío",
+                        "Y es que duele tanto",
+                        "Que me duele el alma",
+                        "Que me duele hasta el aire",
+                        "Y ya no sé qué hacer",
+                        "No sé con quién hablar"
+                    ],
+                    color1: "#e67e22",
+                    color2: "#d35400",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+                },
+                {
+                    id: 5,
+                    title: "Despacito",
+                    artist: "Luis Fonsi",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Despacito",
+                        "Quiero respirar tu cuello despacito",
+                        "Deja que te diga cosas al oído",
+                        "Para que te acuerdes si no estás conmigo",
+                        "Despacito",
+                        "Quiero desnudarte a besos despacito"
+                    ],
+                    color1: "#3498db",
+                    color2: "#2980b9",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
+                },
+                {
+                    id: 6,
+                    title: "La Gozadera",
+                    artist: "Gente de Zona",
+                    genre: "Salsa",
+                    lyrics: [
+                        "Que empiece la gozadera",
+                        "Que aquí llegó la candela",
+                        "Pa' que suene, pa' que baile",
+                        "Que empiece la gozadera",
+                        "Que aquí llegó la candela",
+                        "Pa' que suene, pa' que baile"
+                    ],
+                    color1: "#e74c3c",
+                    color2: "#c0392b",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
+                },
+                {
+                    id: 7,
+                    title: "El Perdón",
+                    artist: "Nicky Jam & Enrique Iglesias",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Antes de que te vayas",
+                        "Quiero que sepas algo",
+                        "Que no he podido borrarte",
+                        "Porque eres lo que más he amado",
+                        "Antes de que te vayas",
+                        "Quiero que sepas algo"
+                    ],
+                    color1: "#9b59b6",
+                    color2: "#8e44ad",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"
+                },
+                {
+                    id: 8,
+                    title: "Dura",
+                    artist: "Daddy Yankee",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Dura, dura, dura, dura",
+                        "Dura, dura, dura, dura",
+                        "Dura, dura, dura, dura",
+                        "Dura, dura, dura, dura",
+                        "Dura, dura, dura, dura",
+                        "Dura, dura, dura, dura"
+                    ],
+                    color1: "#f1c40f",
+                    color2: "#f39c12",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+                },
+                {
+                    id: 9,
+                    title: "Mi Gente",
+                    artist: "J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Mi gente, mi gente",
+                        "Lo que me gusta es que el ambiente se prenda",
+                        "Y que se arrebate, que se arrebate",
+                        "Mi gente, mi gente",
+                        "Lo que me gusta es que el ambiente se prenda",
+                        "Y que se arrebate, que se arrebate"
+                    ],
+                    color1: "#2ecc71",
+                    color2: "#27ae60",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"
+                },
+                {
+                    id: 10,
+                    title: "La Camisa Negra",
+                    artist: "Juanes",
+                    genre: "Rock",
+                    lyrics: [
+                        "Tengo la camisa negra",
+                        "Hoy mi amor está de luto",
+                        "Hoy tengo en el alma una pena",
+                        "Y es por culpa de tu embrujo",
+                        "Tengo la camisa negra",
+                        "Y es que la pena me tiene"
+                    ],
+                    color1: "#34495e",
+                    color2: "#2c3e50",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"
+                },
+                {
+                    id: 11,
+                    title: "Gasolina",
+                    artist: "Daddy Yankee",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Dame más gasolina",
+                        "Cómo le encanta la gasolina",
+                        "Dame más gasolina",
+                        "Cómo le encanta la gasolina"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#ff7f50",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"
+                },
+                {
+                    id: 12,
+                    title: "Hips Don't Lie",
+                    artist: "Shakira",
+                    genre: "Pop",
+                    lyrics: [
+                        "Ladies up in here tonight",
+                        "No fighting, no fighting",
+                        "We got the refugees up in here",
+                        "No fighting, no fighting"
+                    ],
+                    color1: "#1dd1a1",
+                    color2: "#10ac84",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
+                },
+                {
+                    id: 13,
+                    title: "Limbo",
+                    artist: "Daddy Yankee",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Se prende la candela",
+                        "Se prende la candela",
+                        "Se prende la candela",
+                        "Se prende la candela"
+                    ],
+                    color1: "#feca57",
+                    color2: "#ff9f43",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3"
+                },
+                {
+                    id: 14,
+                    title: "Rabiosa",
+                    artist: "Shakira",
+                    genre: "Pop",
+                    lyrics: [
+                        "Rabiosa, rabiosa",
+                        "Rabiosa, rabiosa",
+                        "Rabiosa, rabiosa",
+                        "Rabiosa, rabiosa"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3"
+                },
+                {
+                    id: 15,
+                    title: "El Amante",
+                    artist: "Nicky Jam",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Yo no soy tu marido",
+                        "Yo no soy tu dueño",
+                        "Yo soy el amante",
+                        "El que te hace el amor"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"
+                },
+                {
+                    id: 16,
+                    title: "Felices los 4",
+                    artist: "Maluma",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Tú preguntándome que si sería capaz",
+                        "De amarte a media luz y en lugares públicos",
+                        "Yo no tengo problema, yo lo hago fácil",
+                        "Si tú quieres ser feliz, pues yo también"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3"
+                },
+                {
+                    id: 17,
+                    title: "Chantaje",
+                    artist: "Shakira & Maluma",
+                    genre: "Pop",
+                    lyrics: [
+                        "No es chantaje, no",
+                        "Que me digas que no",
+                        "No es chantaje, no",
+                        "Que me digas que no"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3"
+                },
+                {
+                    id: 18,
+                    title: "Dákiti",
+                    artist: "Bad Bunny & Jhay Cortez",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Dákiti, bebé",
+                        "Yo' toy ready pa' lo que sea",
+                        "Contigo yo me veo to'a la noche en la TV",
+                        "Dákiti, bebé"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-18.mp3"
+                },
+                {
+                    id: 19,
+                    title: "Tusa",
+                    artist: "Karol G & Nicki Minaj",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Tú ere' un cabrón, pero me duele igual",
+                        "Tú ere' un cabrón, pero me duele igual",
+                        "Tú ere' un cabrón, pero me duele igual",
+                        "Tú ere' un cabrón, pero me duele igual"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-19.mp3"
+                },
+                {
+                    id: 20,
+                    title: "Con Calma",
+                    artist: "Daddy Yankee & Snow",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Con calma, yo quiero ver como ella lo menea",
+                        "Mueve ese poom-poom, girl, es un asesina",
+                        "Cuando baila quiere que to' el mundo la vea",
+                        "I like your poom-poom, girl"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-20.mp3"
+                },
+                {
+                    id: 21,
+                    title: "Me Rehúso",
+                    artist: "Danny Ocean",
+                    genre: "Pop",
+                    lyrics: [
+                        "Me rehúso a ser tu ex",
+                        "Me rehúso a ser tu ex",
+                        "Me rehúso a ser tu ex",
+                        "Me rehúso a ser tu ex"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-21.mp3"
+                },
+                {
+                    id: 22,
+                    title: "Ella Me Levantó",
+                    artist: "Daddy Yankee",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Ella me levantó",
+                        "Ella me levantó",
+                        "Ella me levantó",
+                        "Ella me levantó"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-22.mp3"
+                },
+                {
+                    id: 23,
+                    title: "Síguelo Bailando",
+                    artist: "Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Síguelo bailando",
+                        "Síguelo bailando",
+                        "Síguelo bailando",
+                        "Síguelo bailando"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-23.mp3"
+                },
+                {
+                    id: 24,
+                    title: "Te Boté",
+                    artist: "Nio García, Darell, Casper Mágico",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Te boté, te boté",
+                        "Te boté, te boté",
+                        "Te boté, te boté",
+                        "Te boté, te boté"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-24.mp3"
+                },
+                {
+                    id: 25,
+                    title: "X",
+                    artist: "Nicky Jam & J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "X, X, X, X",
+                        "X, X, X, X",
+                        "X, X, X, X",
+                        "X, X, X, X"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-25.mp3"
+                },
+                {
+                    id: 26,
+                    title: "Sola",
+                    artist: "Anuel AA",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Sola, sola, sola",
+                        "Sola, sola, sola",
+                        "Sola, sola, sola",
+                        "Sola, sola, sola"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-26.mp3"
+                },
+                {
+                    id: 27,
+                    title: "Te Vi",
+                    artist: "Piso 21",
+                    genre: "Pop",
+                    lyrics: [
+                        "Te vi, te vi",
+                        "Te vi, te vi",
+                        "Te vi, te vi",
+                        "Te vi, te vi"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-27.mp3"
+                },
+                {
+                    id: 28,
+                    title: "Calypso",
+                    artist: "Luis Fonsi & Stefflon Don",
+                    genre: "Pop",
+                    lyrics: [
+                        "Calypso, calypso",
+                        "Calypso, calypso",
+                        "Calypso, calypso",
+                        "Calypso, calypso"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-28.mp3"
+                },
+                {
+                    id: 29,
+                    title: "No Me Conoce",
+                    artist: "Jhay Cortez, J Balvin, Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "No me conoce",
+                        "No me conoce",
+                        "No me conoce",
+                        "No me conoce"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-29.mp3"
+                },
+                {
+                    id: 30,
+                    title: "China",
+                    artist: "Anuel AA, Daddy Yankee, Karol G, Ozuna, J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "China, china, china",
+                        "China, china, china",
+                        "China, china, china",
+                        "China, china, china"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-30.mp3"
+                },
+                {
+                    id: 31,
+                    title: "Taki Taki",
+                    artist: "DJ Snake, Ozuna, Cardi B, Selena Gomez",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Taki taki, taki taki",
+                        "Taki taki, taki taki",
+                        "Taki taki, taki taki",
+                        "Taki taki, taki taki"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-31.mp3"
+                },
+                {
+                    id: 32,
+                    title: "MIA",
+                    artist: "Bad Bunny ft. Drake",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "MIA, MIA",
+                        "MIA, MIA",
+                        "MIA, MIA",
+                        "MIA, MIA"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-32.mp3"
+                },
+                {
+                    id: 33,
+                    title: "Con Altura",
+                    artist: "Rosalía & J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Con altura, con altura",
+                        "Con altura, con altura",
+                        "Con altura, con altura",
+                        "Con altura, con altura"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-33.mp3"
+                },
+                {
+                    id: 34,
+                    title: "Yo Perreo Sola",
+                    artist: "Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Yo perreo sola",
+                        "Yo perreo sola",
+                        "Yo perreo sola",
+                        "Yo perreo sola"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-34.mp3"
+                },
+                {
+                    id: 35,
+                    title: "Relación",
+                    artist: "Sech",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Relación, relación",
+                        "Relación, relación",
+                        "Relación, relación",
+                        "Relación, relación"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-35.mp3"
+                },
+                {
+                    id: 36,
+                    title: "Favorito",
+                    artist: "Camilo",
+                    genre: "Pop",
+                    lyrics: [
+                        "Favorito, favorito",
+                        "Favorito, favorito",
+                        "Favorito, favorito",
+                        "Favorito, favorito"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-36.mp3"
+                },
+                {
+                    id: 37,
+                    title: "Tutu",
+                    artist: "Camilo, Pedro Capó",
+                    genre: "Pop",
+                    lyrics: [
+                        "Tutu, tutu",
+                        "Tutu, tutu",
+                        "Tutu, tutu",
+                        "Tutu, tutu"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-37.mp3"
+                },
+                {
+                    id: 38,
+                    title: "Hawái",
+                    artist: "Maluma",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Hawái, Hawái",
+                        "Hawái, Hawái",
+                        "Hawái, Hawái",
+                        "Hawái, Hawái"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-38.mp3"
+                },
+                {
+                    id: 39,
+                    title: "Caramelo",
+                    artist: "Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Caramelo, caramelo",
+                        "Caramelo, caramelo",
+                        "Caramelo, caramelo",
+                        "Caramelo, caramelo"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-39.mp3"
+                },
+                {
+                    id: 40,
+                    title: "Vete",
+                    artist: "Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Vete, vete",
+                        "Vete, vete",
+                        "Vete, vete",
+                        "Vete, vete"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-40.mp3"
+                },
+                {
+                    id: 41,
+                    title: "Adicto",
+                    artist: "Anuel AA, Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Adicto, adicto",
+                        "Adicto, adicto",
+                        "Adicto, adicto",
+                        "Adicto, adicto"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-41.mp3"
+                },
+                {
+                    id: 42,
+                    title: "Sigues Con Él",
+                    artist: "Arcángel, Sech",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Sigues con él",
+                        "Sigues con él",
+                        "Sigues con él",
+                        "Sigues con él"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-42.mp3"
+                },
+                {
+                    id: 43,
+                    title: "Si Se Da",
+                    artist: "Myke Towers, Farruko, Arcángel, Sech",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Si se da, si se da",
+                        "Si se da, si se da",
+                        "Si se da, si se da",
+                        "Si se da, si se da"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-43.mp3"
+                },
+                {
+                    id: 44,
+                    title: "La Jeepeta",
+                    artist: "Nio García, Anuel AA, Myke Towers, Brray",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La jeepeta, la jeepeta",
+                        "La jeepeta, la jeepeta",
+                        "La jeepeta, la jeepeta",
+                        "La jeepeta, la jeepeta"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-44.mp3"
+                },
+                {
+                    id: 45,
+                    title: "Fantasías",
+                    artist: "Rauw Alejandro, Farruko",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Fantasías, fantasías",
+                        "Fantasías, fantasías",
+                        "Fantasías, fantasías",
+                        "Fantasías, fantasías"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-45.mp3"
+                },
+                {
+                    id: 46,
+                    title: "Elegí",
+                    artist: "Rauw Alejandro, Dalex, Lenny Tavárez",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Elegí, elegí",
+                        "Elegí, elegí",
+                        "Elegí, elegí",
+                        "Elegí, elegí"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-46.mp3"
+                },
+                {
+                    id: 47,
+                    title: "Tattoo",
+                    artist: "Rauw Alejandro, Camilo",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Tattoo, tattoo",
+                        "Tattoo, tattoo",
+                        "Tattoo, tattoo",
+                        "Tattoo, tattoo"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-47.mp3"
+                },
+                {
+                    id: 48,
+                    title: "Baila Baila Baila",
+                    artist: "Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Baila baila baila",
+                        "Baila baila baila",
+                        "Baila baila baila",
+                        "Baila baila baila"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-48.mp3"
+                },
+                {
+                    id: 49,
+                    title: "Te Robaré",
+                    artist: "Nicky Jam, Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Te robaré, te robaré",
+                        "Te robaré, te robaré",
+                        "Te robaré, te robaré",
+                        "Te robaré, te robaré"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-49.mp3"
+                },
+                {
+                    id: 50,
+                    title: "Qué Más Pues?",
+                    artist: "J Balvin, María Becerra",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Qué más pues, qué más pues",
+                        "Qué más pues, qué más pues",
+                        "Qué más pues, qué más pues",
+                        "Qué más pues, qué más pues"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-50.mp3"
+                },
+                {
+                    id: 51,
+                    title: "Pepas",
+                    artist: "Farruko",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Pepas, pepas",
+                        "Pepas, pepas",
+                        "Pepas, pepas",
+                        "Pepas, pepas"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-51.mp3"
+                },
+                {
+                    id: 52,
+                    title: "Volví",
+                    artist: "Aventura, Bad Bunny",
+                    genre: "Bachata",
+                    lyrics: [
+                        "Volví, volví",
+                        "Volví, volví",
+                        "Volví, volví",
+                        "Volví, volví"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-52.mp3"
+                },
+                {
+                    id: 53,
+                    title: "Volando",
+                    artist: "Mora, Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Volando, volando",
+                        "Volando, volando",
+                        "Volando, volando",
+                        "Volando, volando"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-53.mp3"
+                },
+                {
+                    id: 54,
+                    title: "Yonaguni",
+                    artist: "Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Yonaguni, Yonaguni",
+                        "Yonaguni, Yonaguni",
+                        "Yonaguni, Yonaguni",
+                        "Yonaguni, Yonaguni"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-54.mp3"
+                },
+                {
+                    id: 55,
+                    title: "AM",
+                    artist: "Nio García, J Balvin, Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "AM, AM",
+                        "AM, AM",
+                        "AM, AM",
+                        "AM, AM"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-55.mp3"
+                },
+                {
+                    id: 56,
+                    title: "Súbele el Volumen",
+                    artist: "Daddy Yankee, Myke Towers, Jhay Cortez",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Súbele el volumen",
+                        "Súbele el volumen",
+                        "Súbele el volumen",
+                        "Súbele el volumen"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-56.mp3"
+                },
+                {
+                    id: 57,
+                    title: "Pareja del Año",
+                    artist: "Sebastián Yatra, Myke Towers",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Pareja del año",
+                        "Pareja del año",
+                        "Pareja del año",
+                        "Pareja del año"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-57.mp3"
+                },
+                {
+                    id: 58,
+                    title: "Todo de Ti",
+                    artist: "Rauw Alejandro",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Todo de ti, todo de ti",
+                        "Todo de ti, todo de ti",
+                        "Todo de ti, todo de ti",
+                        "Todo de ti, todo de ti"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-58.mp3"
+                },
+                {
+                    id: 59,
+                    title: "Cúrame",
+                    artist: "Rauw Alejandro",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Cúrame, cúrame",
+                        "Cúrame, cúrame",
+                        "Cúrame, cúrame",
+                        "Cúrame, cúrame"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-59.mp3"
+                },
+                {
+                    id: 60,
+                    title: "París",
+                    artist: "Ingratax",
+                    genre: "Pop",
+                    lyrics: [
+                        "París, París",
+                        "París, París",
+                        "París, París",
+                        "París, París"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-60.mp3"
+                },
+                {
+                    id: 61,
+                    title: "Sal y Perrea",
+                    artist: "Sech, Daddy Yankee, J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Sal y perrea",
+                        "Sal y perrea",
+                        "Sal y perrea",
+                        "Sal y perrea"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-61.mp3"
+                },
+                {
+                    id: 62,
+                    title: "Se Te Nota",
+                    artist: "Lele Pons, Guaynaa",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Se te nota, se te nota",
+                        "Se te nota, se te nota",
+                        "Se te nota, se te nota",
+                        "Se te nota, se te nota"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-62.mp3"
+                },
+                {
+                    id: 63,
+                    title: "La Nota",
+                    artist: "Manuel Turizo, Rauw Alejandro, Myke Towers",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La nota, la nota",
+                        "La nota, la nota",
+                        "La nota, la nota",
+                        "La nota, la nota"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-63.mp3"
+                },
+                {
+                    id: 64,
+                    title: "Borracho",
+                    artist: "Sech, DJ Khaled",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Borracho, borracho",
+                        "Borracho, borracho",
+                        "Borracho, borracho",
+                        "Borracho, borracho"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-64.mp3"
+                },
+                {
+                    id: 65,
+                    title: "Una Locura",
+                    artist: "Ozuna, J Balvin, Chencho Corleone",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Una locura, una locura",
+                        "Una locura, una locura",
+                        "Una locura, una locura",
+                        "Una locura, una locura"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-65.mp3"
+                },
+                {
+                    id: 66,
+                    title: "La Curiosidad",
+                    artist: "Jay Wheeler, DJ Nelson, Myke Towers",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La curiosidad",
+                        "La curiosidad",
+                        "La curiosidad",
+                        "La curiosidad"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-66.mp3"
+                },
+                {
+                    id: 67,
+                    title: "Fiel",
+                    artist: "Los Legendarios, Wisin, Jhay Cortez",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Fiel, fiel",
+                        "Fiel, fiel",
+                        "Fiel, fiel",
+                        "Fiel, fiel"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-67.mp3"
+                },
+                {
+                    id: 68,
+                    title: "Poblado",
+                    artist: "J Balvin, Karol G, Nicky Jam, Crissin, Totoy El Frio, Natan & Shander",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Poblado, poblado",
+                        "Poblado, poblado",
+                        "Poblado, poblado",
+                        "Poblado, poblado"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-68.mp3"
+                },
+                {
+                    id: 69,
+                    title: "2/Catorce",
+                    artist: "Rauw Alejandro, Mr. Naisgai",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "2/Catorce, 2/Catorce",
+                        "2/Catorce, 2/Catorce",
+                        "2/Catorce, 2/Catorce",
+                        "2/Catorce, 2/Catorce"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-69.mp3"
+                },
+                {
+                    id: 70,
+                    title: "Problemón",
+                    artist: "Alvaro Diaz, Rauw Alejandro",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Problemón, problemón",
+                        "Problemón, problemón",
+                        "Problemón, problemón",
+                        "Problemón, problemón"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-70.mp3"
+                },
+                {
+                    id: 71,
+                    title: "BEBÉ",
+                    artist: "Camilo, El Alfa",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Bebé, bebé",
+                        "Bebé, bebé",
+                        "Bebé, bebé",
+                        "Bebé, bebé"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-71.mp3"
+                },
+                {
+                    id: 72,
+                    title: "Travesuras",
+                    artist: "Nio García, Casper Mágico, Ozuna, Wisin & Yandel, Myke Towers, Flow La Movie",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Travesuras, travesuras",
+                        "Travesuras, travesuras",
+                        "Travesuras, travesuras",
+                        "Travesuras, travesuras"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-72.mp3"
+                },
+                {
+                    id: 73,
+                    title: "Loco Por Perrearte",
+                    artist: "De La Ghetto, Rauw Alejandro",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Loco por perrearte",
+                        "Loco por perrearte",
+                        "Loco por perrearte",
+                        "Loco por perrearte"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-73.mp3"
+                },
+                {
+                    id: 74,
+                    title: "Ponte Pa' Mi",
+                    artist: "Rauw Alejandro, Myke Towers, Sky Rompiendo",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Ponte pa' mi, ponte pa' mi",
+                        "Ponte pa' mi, ponte pa' mi",
+                        "Ponte pa' mi, ponte pa' mi",
+                        "Ponte pa' mi, ponte pa' mi"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-74.mp3"
+                },
+                {
+                    id: 75,
+                    title: "La Old Skul",
+                    artist: "Rauw Alejandro, DJ Nelson",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La old skul, la old skul",
+                        "La old skul, la old skul",
+                        "La old skul, la old skul",
+                        "La old skul, la old skul"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-75.mp3"
+                },
+                {
+                    id: 76,
+                    title: "La Boca",
+                    artist: "Mau y Ricky, Camilo",
+                    genre: "Pop",
+                    lyrics: [
+                        "La boca, la boca",
+                        "La boca, la boca",
+                        "La boca, la boca",
+                        "La boca, la boca"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-76.mp3"
+                },
+                {
+                    id: 77,
+                    title: "La Funka",
+                    artist: "Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La funka, la funka",
+                        "La funka, la funka",
+                        "La funka, la funka",
+                        "La funka, la funka"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-77.mp3"
+                },
+                {
+                    id: 78,
+                    title: "Se Menea",
+                    artist: "Don Omar, Nio García",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Se menea, se menea",
+                        "Se menea, se menea",
+                        "Se menea, se menea",
+                        "Se menea, se menea"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-78.mp3"
+                },
+                {
+                    id: 79,
+                    title: "La Tóxica",
+                    artist: "Farruko",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La tóxica, la tóxica",
+                        "La tóxica, la tóxica",
+                        "La tóxica, la tóxica",
+                        "La tóxica, la tóxica"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-79.mp3"
+                },
+                {
+                    id: 80,
+                    title: "Fan de Tus Fotos",
+                    artist: "Nicky Jam, Romeo Santos",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Fan de tus fotos",
+                        "Fan de tus fotos",
+                        "Fan de tus fotos",
+                        "Fan de tus fotos"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-80.mp3"
+                },
+                {
+                    id: 81,
+                    title: "Baila Conmigo",
+                    artist: "Selena Gomez, Rauw Alejandro",
+                    genre: "Pop",
+                    lyrics: [
+                        "Baila conmigo, baila conmigo",
+                        "Baila conmigo, baila conmigo",
+                        "Baila conmigo, baila conmigo",
+                        "Baila conmigo, baila conmigo"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-81.mp3"
+                },
+                {
+                    id: 82,
+                    title: "Una Vaina Loca",
+                    artist: "Fuego, Manuel Turizo",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Una vaina loca",
+                        "Una vaina loca",
+                        "Una vaina loca",
+                        "Una vaina loca"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-82.mp3"
+                },
+                {
+                    id: 83,
+                    title: "TBT",
+                    artist: "Sebastián Yatra, Rauw Alejandro, Manuel Turizo",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "TBT, TBT",
+                        "TBT, TBT",
+                        "TBT, TBT",
+                        "TBT, TBT"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-83.mp3"
+                },
+                {
+                    id: 84,
+                    title: "La Luz",
+                    artist: "Sech, J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La luz, la luz",
+                        "La luz, la luz",
+                        "La luz, la luz",
+                        "La luz, la luz"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-84.mp3"
+                },
+                {
+                    id: 85,
+                    title: "La Forma en Que Me Miras",
+                    artist: "Super Yei, Sammy, Jone Quest, Lenny Tavárez, Myke Towers, Juhn, Chris Jedi",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La forma en que me miras",
+                        "La forma en que me miras",
+                        "La forma en que me miras",
+                        "La forma en que me miras"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-85.mp3"
+                },
+                {
+                    id: 86,
+                    title: "Sola (Remix)",
+                    artist: "Anuel AA, Daddy Yankee, Wisin & Yandel, Zion & Lennox, Farruko",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Sola, sola",
+                        "Sola, sola",
+                        "Sola, sola",
+                        "Sola, sola"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-86.mp3"
+                },
+                {
+                    id: 87,
+                    title: "No Te Hagas",
+                    artist: "Jory Boy, Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "No te hagas, no te hagas",
+                        "No te hagas, no te hagas",
+                        "No te hagas, no te hagas",
+                        "No te hagas, no te hagas"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-87.mp3"
+                },
+                {
+                    id: 88,
+                    title: "Dile Que Tu Me Quieres",
+                    artist: "Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Dile que tú me quieres",
+                        "Dile que tú me quieres",
+                        "Dile que tú me quieres",
+                        "Dile que tú me quieres"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-88.mp3"
+                },
+                {
+                    id: 89,
+                    title: "Te Soñé de Nuevo",
+                    artist: "Ozuna",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Te soñé de nuevo",
+                        "Te soñé de nuevo",
+                        "Te soñé de nuevo",
+                        "Te soñé de nuevo"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-89.mp3"
+                },
+                {
+                    id: 90,
+                    title: "Me Niegas",
+                    artist: "Baby Rasta, Bad Bunny",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Me niegas, me niegas",
+                        "Me niegas, me niegas",
+                        "Me niegas, me niegas",
+                        "Me niegas, me niegas"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-90.mp3"
+                },
+                {
+                    id: 91,
+                    title: "Diles",
+                    artist: "Bad Bunny, Ozuna, Farruko, Arcángel, Ñengo Flow",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Diles, diles",
+                        "Diles, diles",
+                        "Diles, diles",
+                        "Diles, diles"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-91.mp3"
+                },
+                {
+                    id: 92,
+                    title: "Sensualidad",
+                    artist: "Bad Bunny, Prince Royce, J Balvin",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Sensualidad, sensualidad",
+                        "Sensualidad, sensualidad",
+                        "Sensualidad, sensualidad",
+                        "Sensualidad, sensualidad"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-92.mp3"
+                },
+                {
+                    id: 93,
+                    title: "Me Acostumbré",
+                    artist: "Farruko",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Me acostumbré, me acostumbré",
+                        "Me acostumbré, me acostumbré",
+                        "Me acostumbré, me acostumbré",
+                        "Me acostumbré, me acostumbré"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-93.mp3"
+                },
+                {
+                    id: 94,
+                    title: "Dembow",
+                    artist: "Wisin & Yandel",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Dembow, dembow",
+                        "Dembow, dembow",
+                        "Dembow, dembow",
+                        "Dembow, dembow"
+                    ],
+                    color1: "#ff6b6b",
+                    color2: "#ee5253",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-94.mp3"
+                },
+                {
+                    id: 95,
+                    title: "La Ocasión",
+                    artist: "DJ Luian, Mambo Kingz, De La Ghetto, Arcángel, Ozuna, Anuel AA",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "La ocasión, la ocasión",
+                        "La ocasión, la ocasión",
+                        "La ocasión, la ocasión",
+                        "La ocasión, la ocasión"
+                    ],
+                    color1: "#5f27cd",
+                    color2: "#341f97",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-95.mp3"
+                },
+                {
+                    id: 96,
+                    title: "Súbeme la Radio",
+                    artist: "Enrique Iglesias, Descemer Bueno, Zion & Lennox",
+                    genre: "Pop",
+                    lyrics: [
+                        "Súbeme la radio",
+                        "Súbeme la radio",
+                        "Súbeme la radio",
+                        "Súbeme la radio"
+                    ],
+                    color1: "#2e86de",
+                    color2: "#1e3799",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-96.mp3"
+                },
+                {
+                    id: 97,
+                    title: "Duele el Corazón",
+                    artist: "Enrique Iglesias, Wisin",
+                    genre: "Pop",
+                    lyrics: [
+                        "Duele el corazón",
+                        "Duele el corazón",
+                        "Duele el corazón",
+                        "Duele el corazón"
+                    ],
+                    color1: "#ff9ff3",
+                    color2: "#f368e0",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-97.mp3"
+                },
+                {
+                    id: 98,
+                    title: "El Perdedor",
+                    artist: "Maluma",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "El perdedor, el perdedor",
+                        "El perdedor, el perdedor",
+                        "El perdedor, el perdedor",
+                        "El perdedor, el perdedor"
+                    ],
+                    color1: "#00d2d3",
+                    color2: "#01a3a4",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-98.mp3"
+                },
+                {
+                    id: 99,
+                    title: "Cuatro Babys",
+                    artist: "Maluma, Noriel, Bryant Myers, Juhn",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "Cuatro babys, cuatro babys",
+                        "Cuatro babys, cuatro babys",
+                        "Cuatro babys, cuatro babys",
+                        "Cuatro babys, cuatro babys"
+                    ],
+                    color1: "#f368e0",
+                    color2: "#be2edd",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-99.mp3"
+                },
+                {
+                    id: 100,
+                    title: "El Farsante",
+                    artist: "Ozuna, Romeo Santos",
+                    genre: "Reggaetón",
+                    lyrics: [
+                        "El farsante, el farsante",
+                        "El farsante, el farsante",
+                        "El farsante, el farsante",
+                        "El farsante, el farsante"
+                    ],
+                    color1: "#ff9f43",
+                    color2: "#feca57",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-100.mp3"
+                }
+            ];
+            
+            // Temas de colores
+            const themes = {
+                blue: {
+                    primary: '#4361ee',
+                    secondary: '#3a0ca3',
+                    accent: '#f72585',
+                    light: '#4cc9f0',
+                    dark: '#1a1a2e'
+                },
+                pink: {
+                    primary: '#f72585',
+                    secondary: '#b5179e',
+                    accent: '#7209b7',
+                    light: '#f8f9fa',
+                    dark: '#212529'
+                },
+                cyan: {
+                    primary: '#4cc9f0',
+                    secondary: '#4895ef',
+                    accent: '#4361ee',
+                    light: '#f8f9fa',
+                    dark: '#212529'
+                },
+                purple: {
+                    primary: '#3a0ca3',
+                    secondary: '#7209b7',
+                    accent: '#f72585',
+                    light: '#4cc9f0',
+                    dark: '#1a1a2e'
+                },
+                orange: {
+                    primary: '#ff9e00',
+                    secondary: '#ff9100',
+                    accent: '#ff6d00',
+                    light: '#ffea00',
+                    dark: '#212121'
+                }
+            };
+            
+            // Funciones principales
+            function createParticles() {
+                visualizer.innerHTML = '';
+                for(let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.width = `${Math.random() * 200 + 100}px`;
+                    particle.style.height = particle.style.width;
+                    particle.style.background = `radial-gradient(circle, ${playlist[currentTrack].color1}, ${playlist[currentTrack].color2})`;
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                    particle.style.animationDelay = `${Math.random() * 5}s`;
+                    visualizer.appendChild(particle);
+                }
+            }
+            
+            function displayLyrics() {
+                lyricsContainer.innerHTML = '';
+                const lyrics = playlist[currentTrack].lyrics || ["Letra no disponible"];
+                
+                lyrics.forEach(line => {
+                    const lyricLine = document.createElement('div');
+                    lyricLine.className = 'lyrics-line';
+                    lyricLine.textContent = line;
+                    lyricsContainer.appendChild(lyricLine);
+                });
+                
+                // Limpiar intervalo anterior si existe
+                if (lyricInterval) clearInterval(lyricInterval);
+                
+                if (isPlaying) {
+                    const lines = document.querySelectorAll('.lyrics-line');
+                    let currentLine = 0;
+                    
+                    lyricInterval = setInterval(() => {
+                        if (!isPlaying) {
+                            clearInterval(lyricInterval);
+                            return;
+                        }
+                        
+                        lines.forEach(line => line.classList.remove('active'));
+                        if (lines[currentLine]) lines[currentLine].classList.add('active');
+                        
+                        currentLine = (currentLine + 1) % lines.length;
+                    }, 3000);
+                }
+            }
+            
+            function loadTrack(trackIndex) {
+                currentTrack = trackIndex;
+                const track = playlist[trackIndex];
+                
+                music.src = track.src;
+                music.load();
+                
+                trackInfo.textContent = `${track.title} • ${track.artist}`;
+                
+                document.querySelectorAll('.track-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`.track-item[data-id="${track.id}"]`).classList.add('active');
+                
+                createParticles();
+                displayLyrics();
+                
+                if(isPlaying) {
+                    music.play().catch(e => console.log("Error al reproducir:", e));
+                }
+            }
+            
+            function updateProgress() {
+                const {currentTime, duration} = music;
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            }
+            
+            function setTheme(theme) {
+                const colors = themes[theme];
+                document.documentElement.style.setProperty('--primary', colors.primary);
+                document.documentElement.style.setProperty('--secondary', colors.secondary);
+                document.documentElement.style.setProperty('--accent', colors.accent);
+                document.documentElement.style.setProperty('--light', colors.light);
+                document.documentElement.style.setProperty('--dark', colors.dark);
+                document.body.style.background = colors.dark;
+            }
+            
+            function populateTrackList() {
+                trackList.innerHTML = '';
+                
+                const genres = {};
+                playlist.forEach(track => {
+                    if (!genres[track.genre]) genres[track.genre] = [];
+                    genres[track.genre].push(track);
+                });
+                
+                for (const genre in genres) {
+                    const genreTitle = document.createElement('div');
+                    genreTitle.className = 'genre-title';
+                    genreTitle.textContent = `${genre} (${genres[genre].length} canciones)`;
+                    trackList.appendChild(genreTitle);
+                    
+                    genres[genre].forEach(track => {
+                        const item = document.createElement('div');
+                        item.className = 'track-item';
+                        item.textContent = `${track.id}. ${track.title} - ${track.artist}`;
+                        item.dataset.id = track.id;
+                        item.addEventListener('click', () => {
+                            loadTrack(track.id - 1);
+                            if(isPlaying) music.play();
+                            trackSelector.style.display = 'none';
+                        });
+                        trackList.appendChild(item);
+                    });
+                }
+            }
+            
+            async function toggleCamera() {
+                if (!isCameraOn) {
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: {
+                                width: { ideal: 1280 },
+                                height: { ideal: 720 },
+                                facingMode: "user"
+                            }, 
+                            audio: false 
+                        });
+                        userVideo.srcObject = stream;
+                        userVideo.muted = true;
+                        isCameraOn = true;
+                        toggleCameraBtn.innerHTML = '<i class="fas fa-video-slash"></i> Desactivar Cámara';
+                        applyVideoEffect();
+                    } catch (err) {
+                        console.error("Error al acceder a la cámara:", err);
+                    }
+                } else {
+                    stopCamera();
+                }
+            }
+            
+            function stopCamera() {
+                if (stream) {
+                    stream.getVideoTracks().forEach(track => track.stop());
+                    if (userVideo.srcObject) {
+                        userVideo.srcObject = null;
+                    }
+                    isCameraOn = false;
+                    toggleCameraBtn.innerHTML = '<i class="fas fa-video"></i> Activar Cámara';
+                }
+            }
+            
+            async function toggleMicrophone() {
+                if (!isMicOn) {
+                    try {
+                        if (!audioContext) {
+                            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                            analyser = audioContext.createAnalyser();
+                        }
+                        
+                        const micStream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: {
+                                echoCancellation: true,
+                                noiseSuppression: true,
+                                autoGainControl: true
+                            } 
+                        });
+                        
+                        if (stream) {
+                            micStream.getAudioTracks().forEach(track => {
+                                stream.addTrack(track);
+                            });
+                        } else {
+                            stream = micStream;
+                        }
+                        
+                        microphone = audioContext.createMediaStreamSource(micStream);
+                        microphone.connect(analyser);
+                        analyser.connect(audioContext.destination);
+                        
+                        isMicOn = true;
+                        toggleMicBtn.innerHTML = '<i class="fas fa-microphone-slash"></i> Desactivar Mic';
+                        visualizeMic();
+                        applyAudioEffect();
+                    } catch (err) {
+                        console.error("Error al acceder al micrófono:", err);
+                    }
+                } else {
+                    stopMicrophone();
+                }
+            }
+            
+            function stopMicrophone() {
+                if (stream) {
+                    stream.getAudioTracks().forEach(track => track.stop());
+                    if (microphone) microphone.disconnect();
+                    isMicOn = false;
+                    toggleMicBtn.innerHTML = '<i class="fas fa-microphone"></i> Activar Micrófono';
+                }
+            }
+            
+            function visualizeMic() {
+                if (!isMicOn) return;
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                function update() {
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                    const level = Math.min(100, average / 2.55);
+                    
+                    micLevel.style.width = `${level}%`;
+                    
+                    if (isMicOn) requestAnimationFrame(update);
+                }
+                
+                update();
+            }
+            
+            function applyVideoEffect() {
+                if (!stream || !userVideo.srcObject) return;
+                
+                const effect = videoEffect.value;
+                userVideo.style.filter = effect === 'none' ? '' : 
+                    effect === 'blur' ? 'blur(5px)' :
+                    effect === 'grayscale' ? 'grayscale(100%)' :
+                    effect === 'sepia' ? 'sepia(100%)' :
+                    effect === 'invert' ? 'invert(100%)' : '';
+            }
+            
+            function applyAudioEffect() {
+                const effect = audioEffect.value;
+                console.log(`Aplicando efecto de audio: ${effect}`);
+            }
+            
+            async function startRecording() {
+                if (!stream) {
+                    alert("Necesitas activar al menos la cámara o el micrófono para grabar");
+                    return;
+                }
+                
+                try {
+                    // Configurar audio mezclado (música + micrófono)
+                    const audioDest = audioContext.createMediaStreamDestination();
+                    const musicSource = audioContext.createMediaElementSource(music);
+                    
+                    musicSource.connect(audioDest);
+                    if (microphone) microphone.connect(audioDest);
+                    
+                    // Crear stream combinado
+                    const combinedStream = new MediaStream([
+                        ...stream.getVideoTracks(),
+                        ...audioDest.stream.getAudioTracks()
+                    ]);
+                    
+                    recordedChunks = [];
+                    mediaRecorder = new MediaRecorder(combinedStream, {
+                        mimeType: 'video/webm;codecs=vp9,opus'
+                    });
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) recordedChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        recordedVideo.src = url;
+                        
+                        // Mostrar sección de descarga
+                        downloadSection.style.display = 'block';
+                        downloadBtn.onclick = () => {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `karaoke-${playlist[currentTrack].title.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().slice(0,19)}.webm`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        };
+                    };
+                    
+                    mediaRecorder.start(100);
+                    recordBtn.innerHTML = '<i class="fas fa-stop"></i> Detener Grabación';
+                    recordBtn.classList.add('recording');
+                    
+                    // Temporizador
+                    recordingStartTime = Date.now();
+                    recordingTimer.style.display = 'block';
+                    updateRecordingTimer();
+                    
+                    console.log("Grabación iniciada");
+                } catch (err) {
+                    console.error("Error al iniciar la grabación:", err);
+                    alert("Error al iniciar la grabación: " + err.message);
+                }
+            }
+            
+            function stopRecording() {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                    recordBtn.innerHTML = '<i class="fas fa-circle"></i> Grabar Karaoke';
+                    recordBtn.classList.remove('recording');
+                    
+                    clearInterval(recordingInterval);
+                    recordingTimer.style.display = 'none';
+                    
+                    // Detener solo las pistas de grabación, no la cámara/micrófono
+                    if (stream) {
+                        stream.getTracks().forEach(track => {
+                            if (track.readyState === 'live' && track.kind === 'audio') {
+                                track.stop();
+                            }
+                        });
+                    }
+                    
+                    console.log("Grabación detenida");
+                }
+            }
+            
+            function updateRecordingTimer() {
+                recordingInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    recordingTimer.textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            }
+            
+            function adjustLyricSize(change) {
+                const root = document.documentElement;
+                const currentSize = parseFloat(getComputedStyle(root).getPropertyValue('--lyric-size'));
+                const newSize = Math.max(1, Math.min(3, currentSize + change));
+                root.style.setProperty('--lyric-size', `${newSize}rem`);
+            }
+            
+            // Event listeners
+            playBtn.addEventListener('click', () => {
+                if(music.paused) {
+                    music.play()
+                        .then(() => {
+                            isPlaying = true;
+                            playBtn.textContent = '❚❚';
+                            displayLyrics();
+                        })
+                        .catch(e => console.log("Error al reproducir:", e));
+                } else {
+                    music.pause();
+                    isPlaying = false;
+                    playBtn.textContent = '▶';
+                }
+            });
+            
+            prevBtn.addEventListener('click', () => {
+                const prevTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+                loadTrack(prevTrack);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                const nextTrack = (currentTrack + 1) % playlist.length;
+                loadTrack(nextTrack);
+            });
+            
+            music.addEventListener('ended', () => {
+                const nextTrack = (currentTrack + 1) % playlist.length;
+                loadTrack(nextTrack);
+            });
+            
+            music.addEventListener('timeupdate', updateProgress);
+            
+            themeBtns.forEach(btn => {
+                btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+            });
+            
+            menuBtn.addEventListener('click', () => {
+                trackSelector.style.display = trackSelector.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            toggleCameraBtn.addEventListener('click', toggleCamera);
+            toggleMicBtn.addEventListener('click', toggleMicrophone);
+            
+            toggleEffectsBtn.addEventListener('click', () => {
+                effectsControls.style.display = effectsControls.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            videoEffect.addEventListener('change', applyVideoEffect);
+            audioEffect.addEventListener('change', applyAudioEffect);
+            
+            recordBtn.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+            
+            newRecordingBtn.addEventListener('click', () => {
+                downloadSection.style.display = 'none';
+                recordedVideo.src = '';
+            });
+            
+            increaseLyricSizeBtn.addEventListener('click', () => adjustLyricSize(0.1));
+            decreaseLyricSizeBtn.addEventListener('click', () => adjustLyricSize(-0.1));
+            
+            // Inicialización
+            populateTrackList();
+            loadTrack(0);
+            music.volume = 0.7;
+            setTheme('blue');
+            adjustLyricSize(0); // Aplicar tamaño inicial
+        });
+    </script>
+</body>
+</html>
